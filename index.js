@@ -1,25 +1,14 @@
+
+
+
+require("dotenv").config()
 const express = require('express')
+const Score = require('./models/score')
 const app = express()
+//const mongoose = require("mongoose")
 
 app.use(express.json())
 
-let scores = [
-    {
-      id: "1",
-      content: "HTML is easy",
-      important: true
-    },
-    {
-      id: "2",
-      content: "Browser can execute only JavaScript",
-      important: false
-    },
-    {
-      id: "3",
-      content: "GET and POST are the most important methods of HTTP protocol",
-      important: true
-    }
-]  
 const generateId = () => {
     const maxId = scores.length > 0
       ? Math.max(...scores.map(n => Number(n.id)))
@@ -27,7 +16,7 @@ const generateId = () => {
     return String(maxId + 1)
   }
   
-
+const scores = []
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
@@ -36,6 +25,7 @@ app.get("/info", (request, response) => {
 })
 
 app.get('/api/scores', (request, response) => {
+
   response.json(scores)
 })
 
@@ -55,6 +45,33 @@ app.delete('/api/scores/:id', (request, response) => {
     scores = scores.filter(score => score.id !== id)
   
     response.status(204).end()
+
+  Score.find({}).then(scores => {
+    response.json(scores)
+  })
+})
+
+app.get('/api/scores/:id', (request, response) => {
+    Score.findById(request.params.id).then(score => {
+      response.json(score)
+    })
+    .catch(error => {
+      console.log(error)
+      response.status(400).send({ error: "wrong id"})
+    })
+  })
+
+app.delete('/api/scores/:id', (request, response) => {
+    Score.findByIdAndDelete(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+  
+    .catch(error => {
+      response.status(400).send({error: "operation failed"})
+    }
+    )
+
 })
 
 
@@ -67,16 +84,18 @@ app.delete('/api/scores/:id', (request, response) => {
       })
     }
   
-    const score = {
+
+
+  const score = new Score({
       username: body.username,
       time: body.time,
       date: new Date().toString(),
-      id: generateId(),
-    }
+      //id: generateId(),
+    })
   
-    scores = scores.concat(score)
-  
-    response.json(score)
+    score.save().then(savedScore => {
+      response.json(savedScore)
+    })
   })
 
 const unknownEndpoint = (request, response) => {
@@ -84,7 +103,14 @@ const unknownEndpoint = (request, response) => {
 }
 app.use(unknownEndpoint)
 
-const PORT = 3001
+
+
+
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
+//mongodb+srv://vilipi2009:<db_password>@cluster1.xbtlt1u.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1
+//batadase
+

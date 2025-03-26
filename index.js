@@ -14,6 +14,7 @@ const generateId = () => {
   }
   
 const scores = []
+
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
@@ -22,31 +23,11 @@ app.get("/info", (request, response) => {
 })
 
 app.get('/api/scores', (request, response) => {
-
-  response.json(scores)
-})
-
-app.get('/api/scores/:id', (request, response) => {
-    const id = request.params.id
-    const score = scores.find(score => score.id === id)
-    if (score) {
-        response.json(score)
-      } else {
-        response.status(404).end()
-      }
-    response.json(score)
-  })
-
-app.delete('/api/scores/:id', (request, response) => {
-    const id = request.params.id
-    scores = scores.filter(score => score.id !== id)
-  
-    response.status(204).end()
-
   Score.find({}).then(scores => {
     response.json(scores)
   })
 })
+
 
 app.get('/api/scores/:id', (request, response) => {
     Score.findById(request.params.id).then(score => {
@@ -71,7 +52,6 @@ app.delete('/api/scores/:id', (request, response) => {
 
 })
 
-
   app.post('/api/scores', (request, response) => {
     const body = request.body
   
@@ -81,8 +61,6 @@ app.delete('/api/scores/:id', (request, response) => {
       })
     }
   
-
-
   const score = new Score({
       username: body.username,
       time: body.time,

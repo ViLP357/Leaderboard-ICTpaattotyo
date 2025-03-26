@@ -1,6 +1,3 @@
-
-
-
 require("dotenv").config()
 const express = require('express')
 const Score = require('./models/score')
@@ -110,7 +107,4 @@ const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
-
-//mongodb+srv://vilipi2009:<db_password>@cluster1.xbtlt1u.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1
-//batadase
 

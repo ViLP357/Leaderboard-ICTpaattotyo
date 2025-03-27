@@ -89,3 +89,6 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
 
+//package.json:
+ //"build:ui": "rm -rf dist && cd ../frontend && npm run build && cp -r dist ../backend"
+    //"build:ui": "rm -rf dist && npm run build && cp -r dist ../backend",

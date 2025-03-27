@@ -71,6 +71,9 @@ app.delete('/api/scores/:id', (request, response) => {
     score.save().then(savedScore => {
       response.json(savedScore)
     })
+    .catch(error => {
+      response.status(400).send({ error: "Validation Error"})
+    })
   })
 
 const unknownEndpoint = (request, response) => {

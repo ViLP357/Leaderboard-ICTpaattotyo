@@ -14,8 +14,14 @@ mongoose.connect(url)
 })
 
 const scoreSchema = new mongoose.Schema({
-    username: String,
-    time: Number,
+    username: {
+      type: String,
+      required: true
+    },
+    time:  {
+      type: Number,
+      required: true
+    },
     date: String
 })
 

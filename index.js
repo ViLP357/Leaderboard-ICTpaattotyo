@@ -24,14 +24,14 @@ app.get("/info", (request, response) => {
 
 app.get('/api/scores', (request, response) => {
   Score.find({}).then(scores => {
-    response.json(scores)
+    response.json({scores : scores})
   })
 })
 
 
 app.get('/api/scores/:id', (request, response) => {
     Score.findById(request.params.id).then(score => {
-      response.json(score)
+      response.json({score : score})
     })
     .catch(error => {
       console.log(error)

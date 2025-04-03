@@ -76,6 +76,21 @@ app.delete('/api/scores/:id', (request, response) => {
     })
   })
 
+  app.put('/api/scores/:id', (request, response) => {
+
+    const { username, time} = request.body
+
+    Score.findByIdAndUpdate(request.params.id,
+      { username, time, date: new Date().toString() }
+      //{ username, time, date},
+      //{ time: request.params.time, data: new Date().toString(), runValidators: true, context: 'query' }
+    )
+      .then(updatedScore => {
+        response.json(updatedScore)
+      })
+      .catch(error => next(error))
+  })
+
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }

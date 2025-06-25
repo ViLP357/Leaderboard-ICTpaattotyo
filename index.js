@@ -17,22 +17,25 @@ const generateId = () => {
   }
   
 const scores = []
+const apiKeyCode = process.env.apiKeyCode
 
-app.get('/', (request, response) => {
+app.get('/', (_request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
-app.get("/info", (request, response) => {
+app.get("/info", (_request, response) => {
     response.send("Leaderboard ICT-päättötyön peliin")
 })
 
 app.get('/api/scores', (request, response) => {
-  Score.find({}).then(scores => {
-    response.json({scores : scores})
-  })
+    Score.find({}).then(scores => {
+      response.json({scores : scores})
+    })
+
 })
 
 
 app.get('/api/scores/:id', (request, response) => {
+
     Score.findById(request.params.id).then(score => {
       response.json({score : score})
     })
@@ -40,9 +43,11 @@ app.get('/api/scores/:id', (request, response) => {
       console.log(error)
       response.status(400).send({ error: "wrong id"})
     })
-  })
+  
+})
 
 app.delete('/api/scores/:id', (request, response) => {
+  if (request.body.keyCode === apiKeyCode) {
     Score.findByIdAndDelete(request.params.id)
     .then(result => {
       response.status(204).end()
@@ -52,35 +57,45 @@ app.delete('/api/scores/:id', (request, response) => {
       response.status(400).send({error: "operation failed"})
     }
     )
-
+  } else {
+    response.status(401).send({error: "missing keycode"})
+  }
 })
 
   app.post('/api/scores', (request, response) => {
+    
     const body = request.body
+    if (body.keyCode === apiKeyCode) {
+      if (!body.username || !body.time) {
+        return response.status(400).json({ 
+          error: 'content missing' 
+        })
+      }
   
-    if (!body.username || !body.time) {
-      return response.status(400).json({ 
-        error: 'content missing' 
+  
+      const score = new Score({
+        username: body.username,
+        time: body.time,
+        date: new Date().toString(),
+        //id: generateId(),
       })
+      
+      score.save().then(savedScore => {
+        response.json(savedScore)
+      })
+      .catch(error => {
+        response.status(400).send({ error: "Validation Error"})
+      })
+    } else {
+        return response.status(401).json({ 
+          error: 'content missing (keyCode)' 
+        })
     }
-  
-  const score = new Score({
-      username: body.username,
-      time: body.time,
-      date: new Date().toString(),
-      //id: generateId(),
-    })
-  
-    score.save().then(savedScore => {
-      response.json(savedScore)
-    })
-    .catch(error => {
-      response.status(400).send({ error: "Validation Error"})
-    })
   })
 
-  app.put('/api/scores/:id', (request, response) => {
 
+  app.put('/api/scores/:id', (request, response) => {
+  if (request.body.keyCode === apiKeyCode) {
     const { username, time} = request.body
 
     Score.findByIdAndUpdate(request.params.id,
@@ -91,7 +106,12 @@ app.delete('/api/scores/:id', (request, response) => {
       .then(updatedScore => {
         response.json(updatedScore)
       })
-      .catch(error => next(error))
+      .catch(error => response.status(400).send({ error: "Validation Error" + error.message}))
+  } else {
+      return response.status(401).json({ 
+        error: 'content missing (keyCode)' 
+      })
+  }
   })
 
 const unknownEndpoint = (request, response) => {
